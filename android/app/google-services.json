@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "230266915045",
+    "firebase_url": "https://doc-organizer-8bd19.firebaseio.com",
+    "project_id": "doc-organizer-8bd19",
+    "storage_bucket": "doc-organizer-8bd19.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230266915045:android:5252fa14453199d9626c0c",
+        "android_client_info": {
+          "package_name": "com.njain.document_organizer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230266915045-e4s4fj09o2es5l6u72thmsq1niis561l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdsjmS43F5lkrDaAGvmpZzDpx1097b980"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230266915045-e4s4fj09o2es5l6u72thmsq1niis561l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

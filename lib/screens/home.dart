@@ -8,6 +8,7 @@ import 'package:document_organizer/utils/file_utils.dart';
 import 'package:document_organizer/widgets/anim_bottom_bar.dart';
 import 'package:document_organizer/utils/database_helper.dart';
 import 'package:document_organizer/widgets/pick_file_button.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -22,6 +23,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
+import 'package:upgrader/upgrader.dart';
 
 class Home extends StatefulWidget {
   final List<BarItem> barItems = [
@@ -47,12 +49,28 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  final FirebaseMessaging _fcm = FirebaseMessaging();
+  static BuildContext alertContext;
 
   @override
   void initState() {
     createDir();
     super.initState();
 
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        showPushDialog(message);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        showPushDialog(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        showPushDialog(message);
+      },
+    );
   }
 
   final GlobalKey<TagsPageState> _key = GlobalKey();
@@ -66,7 +84,7 @@ class HomeState extends State<Home> {
   static int sortByIndex = 1;
   TextEditingController renameCtrl = TextEditingController();
 
-  bool isProgressing=false;
+  bool isProgressing = false;
 
   int sort = sortByIndex == 0 ? sortIndex : 3 + sortIndex;
 
@@ -97,6 +115,7 @@ class HomeState extends State<Home> {
       allFiles = fileList;
       updateListView();
     }
+    alertContext = context;
     Constants.allFileList = allFiles;
 
     double initial, distance;
@@ -170,326 +189,339 @@ class HomeState extends State<Home> {
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
-            body: selectedBarIndex == 2
-                ? TagsPage(_key, HomeState(), changeDrawer, _showSnackBar)
-                : Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 500,
-                            height: 160,
-                            margin: EdgeInsets.only(bottom: 18),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(36),
-                                  bottomRight: Radius.circular(36)),
-                              color: selectedBarIndex == 0
-                                  ? Colors.blue[100]
-                                  : Colors.red[100],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              SizedBox(
-                                height: 45,
+            body: UpgradeAlert(
+              child: selectedBarIndex == 2
+                  ? TagsPage(_key, HomeState(), changeDrawer, _showSnackBar)
+                  : Column(
+                      children: [
+                        Stack(
+                          children: [
+                            Container(
+                              width: 500,
+                              height: 160,
+                              margin: EdgeInsets.only(bottom: 18),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(36),
+                                    bottomRight: Radius.circular(36)),
+                                color: selectedBarIndex == 0
+                                    ? Colors.blue[100]
+                                    : Colors.red[100],
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 9),
-                                    child: IconButton(
-                                      icon: Icon(Constants.isDrawerOpen
-                                          ? Icons.clear
-                                          : Icons.menu),
-                                      iconSize: 30,
-                                      onPressed: () {
-                                        changeDrawer();
-                                      },
+                            ),
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: 45,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 9),
+                                      child: IconButton(
+                                        icon: Icon(Constants.isDrawerOpen
+                                            ? Icons.clear
+                                            : Icons.menu),
+                                        iconSize: 30,
+                                        onPressed: () {
+                                          changeDrawer();
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  Card(
-                                    color: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(9),
-                                    ),
-                                    elevation: 0,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Row(children: [
-                                        SizedBox(
-                                          child: Constants.setDocType(),
-                                          height: 30,
-                                          width: 30,
-                                        ),
-                                        SizedBox(
-                                          width: 15,
-                                        ),
-                                        DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                            items: _filesTypes
-                                                .map(
-                                                    (value) => DropdownMenuItem(
-                                                          child: Text(value),
-                                                          value: value,
-                                                        ))
-                                                .toList(),
-                                            value:
-                                                Constants.currentItemSelected,
-                                            onChanged: (newValueSelected) {
-                                              setState(() {
-                                                Constants.currentItemSelected =
-                                                    newValueSelected;
-                                                Constants.setDocType();
-                                                updateListView();
-                                              });
-                                            },
+                                    Card(
+                                      color: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(9),
+                                      ),
+                                      elevation: 0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                        child: Row(children: [
+                                          SizedBox(
+                                            child: Constants.setDocType(),
+                                            height: 30,
+                                            width: 30,
                                           ),
-                                        ),
-                                      ]),
+                                          SizedBox(
+                                            width: 15,
+                                          ),
+                                          DropdownButtonHideUnderline(
+                                            child: DropdownButton(
+                                              items: _filesTypes
+                                                  .map((value) =>
+                                                      DropdownMenuItem(
+                                                        child: Text(value),
+                                                        value: value,
+                                                      ))
+                                                  .toList(),
+                                              value:
+                                                  Constants.currentItemSelected,
+                                              onChanged: (newValueSelected) {
+                                                setState(() {
+                                                  Constants
+                                                          .currentItemSelected =
+                                                      newValueSelected;
+                                                  Constants.setDocType();
+                                                  updateListView();
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ]),
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                      padding: EdgeInsets.only(right: 10,bottom: 5),
-                                      icon: SizedBox(child: Image.asset('Assets/sort.png'),width: 24,height: 24,),
-                                      onPressed: () {
-                                        showModalBottomSheet(
-                                            context: context,
-                                            builder: (context) {
-                                              return StatefulBuilder(builder:
-                                                  (BuildContext context,
-                                                      StateSetter
-                                                          setModelState) {
-                                                Widget customRadio(
-                                                    String txt, int index) {
-                                                  return OutlineButton(
-                                                    onPressed: () {
-                                                      setModelState(() {
-                                                        setState(() {
-                                                          sortIndex = index;
-                                                          sort = sortByIndex ==
-                                                                  0
-                                                              ? sortIndex
-                                                              : 3 + sortIndex;
-                                                          print(
-                                                              '$sortIndex $sortByIndex $sort');
-                                                          fileList = FileUtils
-                                                              .sortList(
-                                                                  fileList,
-                                                                  sort);
+                                    IconButton(
+                                        padding: EdgeInsets.only(
+                                            right: 10, bottom: 5),
+                                        icon: SizedBox(
+                                          child: Image.asset('Assets/sort.png'),
+                                          width: 24,
+                                          height: 24,
+                                        ),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                              context: context,
+                                              builder: (context) {
+                                                return StatefulBuilder(builder:
+                                                    (BuildContext context,
+                                                        StateSetter
+                                                            setModelState) {
+                                                  Widget customRadio(
+                                                      String txt, int index) {
+                                                    return OutlineButton(
+                                                      onPressed: () {
+                                                        setModelState(() {
+                                                          setState(() {
+                                                            sortIndex = index;
+                                                            sort = sortByIndex ==
+                                                                    0
+                                                                ? sortIndex
+                                                                : 3 + sortIndex;
+                                                            print(
+                                                                '$sortIndex $sortByIndex $sort');
+                                                            fileList = FileUtils
+                                                                .sortList(
+                                                                    fileList,
+                                                                    sort);
+                                                          });
                                                         });
-                                                      });
-                                                    },
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10)),
-                                                    borderSide: BorderSide(
-                                                        color:
-                                                            sortIndex == index
-                                                                ? Colors.cyan
-                                                                : Colors.grey),
-                                                    child: Text(
-                                                      txt,
-                                                      textScaleFactor: 1.2,
-                                                      style: TextStyle(
+                                                      },
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                      borderSide: BorderSide(
                                                           color: sortIndex ==
                                                                   index
                                                               ? Colors.cyan
                                                               : Colors.grey),
-                                                    ),
-                                                  );
-                                                }
+                                                      child: Text(
+                                                        txt,
+                                                        textScaleFactor: 1.2,
+                                                        style: TextStyle(
+                                                            color: sortIndex ==
+                                                                    index
+                                                                ? Colors.cyan
+                                                                : Colors.grey),
+                                                      ),
+                                                    );
+                                                  }
 
-                                                Widget customRadio2(
-                                                    String txt, int index) {
-                                                  return OutlineButton(
-                                                    onPressed: () {
-                                                      setModelState(() {
-                                                        setState(() {
-                                                          sortByIndex = index;
-                                                          sort = sortByIndex ==
-                                                                  0
-                                                              ? sortIndex
-                                                              : 3 + sortIndex;
-                                                          print(
-                                                              '$sortIndex $sortByIndex $sort');
-                                                          fileList = FileUtils
-                                                              .sortList(
-                                                                  fileList,
-                                                                  sort);
+                                                  Widget customRadio2(
+                                                      String txt, int index) {
+                                                    return OutlineButton(
+                                                      onPressed: () {
+                                                        setModelState(() {
+                                                          setState(() {
+                                                            sortByIndex = index;
+                                                            sort = sortByIndex ==
+                                                                    0
+                                                                ? sortIndex
+                                                                : 3 + sortIndex;
+                                                            print(
+                                                                '$sortIndex $sortByIndex $sort');
+                                                            fileList = FileUtils
+                                                                .sortList(
+                                                                    fileList,
+                                                                    sort);
+                                                          });
                                                         });
-                                                      });
-                                                    },
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10)),
-                                                    borderSide: BorderSide(
-                                                        color: sortByIndex ==
-                                                                index
-                                                            ? Colors
-                                                                .deepOrangeAccent
-                                                            : Colors.grey),
-                                                    child: Text(
-                                                      txt,
-                                                      textScaleFactor: 1.1,
-                                                      style: TextStyle(
+                                                      },
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                      borderSide: BorderSide(
                                                           color: sortByIndex ==
                                                                   index
                                                               ? Colors
                                                                   .deepOrangeAccent
                                                               : Colors.grey),
-                                                    ),
-                                                  );
-                                                }
+                                                      child: Text(
+                                                        txt,
+                                                        textScaleFactor: 1.1,
+                                                        style: TextStyle(
+                                                            color: sortByIndex ==
+                                                                    index
+                                                                ? Colors
+                                                                    .deepOrangeAccent
+                                                                : Colors.grey),
+                                                      ),
+                                                    );
+                                                  }
 
-                                                return Container(
-                                                    padding: EdgeInsets.all(20),
-                                                    height: 290,
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Sort By',
-                                                          textScaleFactor: 1.4,
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 21,
-                                                        ),
-                                                        customRadio(
-                                                            sortItems[0], 0),
-                                                        customRadio(
-                                                            sortItems[1], 1),
-                                                        customRadio(
-                                                            sortItems[2], 2),
-                                                        SizedBox(
-                                                          height: 7,
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            customRadio2(
-                                                                sortBy[0], 0),
-                                                            SizedBox(
-                                                              width: 9,
-                                                            ),
-                                                            customRadio2(
-                                                                sortBy[1], 1),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ));
+                                                  return Container(
+                                                      padding:
+                                                          EdgeInsets.all(20),
+                                                      height: 290,
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Sort By',
+                                                            textScaleFactor:
+                                                                1.4,
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 21,
+                                                          ),
+                                                          customRadio(
+                                                              sortItems[0], 0),
+                                                          customRadio(
+                                                              sortItems[1], 1),
+                                                          customRadio(
+                                                              sortItems[2], 2),
+                                                          SizedBox(
+                                                            height: 7,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              customRadio2(
+                                                                  sortBy[0], 0),
+                                                              SizedBox(
+                                                                width: 9,
+                                                              ),
+                                                              customRadio2(
+                                                                  sortBy[1], 1),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ));
+                                                });
                                               });
-                                            });
-                                      })
-                                ],
-                              ),
-                            ],
-                          ),
-                          Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 35),
-                                height: 54,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      offset: Offset(0, 7),
-                                      blurRadius: 15,
-                                      color: Colors.blueGrey.withOpacity(0.39),
-                                    ),
+                                        })
                                   ],
                                 ),
-                                child: Row(children: <Widget>[
-                                  Expanded(
-                                    child: TextField(
-                                      onChanged: (search) {
-                                        setState(() {
-                                          fileList = allFiles
-                                              .where((f) => (f.name
-                                                  .toLowerCase()
-                                                  .contains(
-                                                      search.toLowerCase())))
-                                              .toList();
-                                          count = fileList.length;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 15),
-                                        hintText: "Search",
-                                        hintStyle: TextStyle(
-                                          color:
-                                              Colors.blueGrey.withOpacity(0.5),
+                              ],
+                            ),
+                            Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 35),
+                                  height: 54,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        offset: Offset(0, 7),
+                                        blurRadius: 15,
+                                        color:
+                                            Colors.blueGrey.withOpacity(0.39),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(children: <Widget>[
+                                    Expanded(
+                                      child: TextField(
+                                        onChanged: (search) {
+                                          setState(() {
+                                            fileList = allFiles
+                                                .where((f) => (f.name
+                                                    .toLowerCase()
+                                                    .contains(
+                                                        search.toLowerCase())))
+                                                .toList();
+                                            count = fileList.length;
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 15),
+                                          hintText: "Search",
+                                          hintStyle: TextStyle(
+                                            color: Colors.blueGrey
+                                                .withOpacity(0.5),
+                                          ),
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
                                         ),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: Icon(
-                                      Icons.search,
-                                      color: Colors.blueGrey.withOpacity(0.7),
-                                    ),
-                                  ),
-                                ]),
-                              )),
-                        ],
-                      ),
-                      Expanded(
-                        child: Stack(children: [
-                          Container(
-                            margin: EdgeInsets.only(top: 45),
-                            padding: EdgeInsets.only(top: 5),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(70)),
-                              color: selectedBarIndex == 0
-                                  ? Colors.blue[50]
-                                  : Colors.red[50],
-                            ),
-                            child: allFiles.length == 0
-                                ? PickButton(this)
-                                : count == 0
-                                    ? Center(child: Text(Constants.emptyFile))
-                                    : Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 11.0),
-                                        child: getFileListView(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Icon(
+                                        Icons.search,
+                                        color: Colors.blueGrey.withOpacity(0.7),
                                       ),
-                          ),
-                          !isProgressing?Container(child: null):Positioned(
-                            child: Container(
-                              child: LinearProgressIndicator(),
-                              height: 5,
-                              width: MediaQuery.of(context).size.width,
+                                    ),
+                                  ]),
+                                )),
+                          ],
+                        ),
+                        Expanded(
+                          child: Stack(children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 45),
+                              padding: EdgeInsets.only(top: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(70)),
+                                color: selectedBarIndex == 0
+                                    ? Colors.blue[50]
+                                    : Colors.red[50],
+                              ),
+                              child: allFiles.length == 0
+                                  ? PickButton(this)
+                                  : count == 0
+                                      ? Center(child: Text(Constants.emptyFile))
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 11.0),
+                                          child: getFileListView(),
+                                        ),
                             ),
-                            bottom: 3,
-                          ),
-                        ]),
-                      ),
-                    ],
-                  ),
+                            !isProgressing
+                                ? Container(child: null)
+                                : Positioned(
+                                    child: Container(
+                                      child: LinearProgressIndicator(),
+                                      height: 5,
+                                      width: MediaQuery.of(context).size.width,
+                                    ),
+                                    bottom: 3,
+                                  ),
+                          ]),
+                        ),
+                      ],
+                    ),
+            ),
             bottomNavigationBar: AnimatedBottomBar(
               barItems: widget.barItems,
               animationDuration: const Duration(milliseconds: 450),
@@ -680,7 +712,7 @@ class HomeState extends State<Home> {
   }
 
   Future<void> getFile(BuildContext context) async {
-    isProgressing=true;
+    isProgressing = true;
     File pickedFile;
     var status = await Permission.storage.status;
     if (status.isGranted) {
@@ -739,7 +771,6 @@ class HomeState extends State<Home> {
       }
 
       if (result != 0) {
-
         updateListView();
         selectedBarIndex = 0;
         print(pickedFile.path);
@@ -747,7 +778,7 @@ class HomeState extends State<Home> {
         // Failure
       }
     }
-    isProgressing=false;
+    isProgressing = false;
   }
 
   void updateListView() {
@@ -1004,5 +1035,43 @@ class HomeState extends State<Home> {
       dir.create(/*recursive=true*/);
       //pass recursive as true if directory is recursive
     }
+  }
+
+  void showPushDialog(Map<String, dynamic> message) {
+    showDialog(
+      context: alertContext,
+      builder: (context) => AlertDialog(
+        contentPadding: EdgeInsets.only(top:9,bottom: 0,left: 11,right: 7),
+        actionsPadding: EdgeInsets.all(0),
+        title: Center(child: Text('Notification')),
+        content: ListTile(
+          contentPadding: EdgeInsets.all(0),
+          title: Text(
+            message['data']['title']==null?'Sorry':message['data']['title'],
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top:7.0),
+            child: Text(
+              message['data']['body']==null?"Couldn't load data":message['data']['body'],
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 }
