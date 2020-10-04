@@ -2,6 +2,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'faq.dart';
+import 'feedback.dart';
 
 class DrawerScreen extends StatefulWidget {
   @override
@@ -98,7 +100,10 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 20,
                     ),
                     TextButton(
-                        onPressed: null,
+                        onPressed: (){
+                          Navigator.push(context, ScaleRoute(page: UserFeedback()
+                          ));
+                        },
                         child: Row(
                           children: [
                             Icon(
@@ -123,7 +128,10 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 20,
                     ),
                     TextButton(
-                        onPressed: null,
+                        onPressed: (){
+                    Navigator.push(context, ScaleRoute(page: FAQ()
+                    ));
+                    },
                         child: Row(
                           children: [
                             Icon(
@@ -188,4 +196,38 @@ class _DrawerScreenState extends State<DrawerScreen> {
       ),
     );
   }
+}
+
+class ScaleRoute extends PageRouteBuilder {
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 900);
+
+  final Widget page;
+  ScaleRoute({this.page})
+      : super(
+    pageBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        ) =>
+    page,
+    transitionsBuilder: (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+        Widget child,
+        ) =>
+        ScaleTransition(
+          scale: Tween<double>(
+            begin: 0.0,
+            end: 1.0,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.fastOutSlowIn,
+            ),
+          ),
+          child: child,
+        ),
+  );
 }

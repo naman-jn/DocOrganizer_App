@@ -28,6 +28,11 @@ class TagsPageState extends State<TagsPage> {
   TextEditingController tagCtrl = TextEditingController();
   TextEditingController renameCtrl = TextEditingController();
 
+  var _createFormKey = GlobalKey<FormState>();
+  var _renameFormKey = GlobalKey<FormState>();
+
+
+
   @override
   Widget build(BuildContext context) {
     if (tagList == null) {
@@ -300,8 +305,16 @@ class TagsPageState extends State<TagsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0, top: 8),
-              child: TextField(
+              child: TextFormField(
                 controller: tagCtrl,
+                  // ignore: missing_return
+                  validator: (String value) {
+                    if (value
+                        .trim()
+                        .isEmpty) {
+                      return "Name can't be empty";
+                    }
+                  },
                 autofocus: true,
                 style: TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
@@ -312,16 +325,14 @@ class TagsPageState extends State<TagsPage> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5)),
                 ),
-                onSubmitted: (value) async {
-                  createTag(context, tagCtrl.text);
-                  Navigator.pop(context);
-                },
               ),
             ),
             OutlineButton(
               onPressed: () async {
-                createTag(context, tagCtrl.text);
-                Navigator.pop(context);
+                if (_createFormKey.currentState.validate()) {
+                  createTag(context, tagCtrl.text);
+                  Navigator.pop(context);
+                }
               },
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -427,44 +438,50 @@ class TagsPageState extends State<TagsPage> {
   void _showRenameDialog(BuildContext context,int position) {
     Dialog dialog = Dialog(
       backgroundColor: Colors.white,
-      child: Container(
-        color: Colors.transparent,
-        padding: EdgeInsets.all(15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 8),
-              child: TextField(
-                controller: renameCtrl,
-                autofocus: true,
-                style: TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  labelText: "Rename",
-                  hintText: "Enter new Name",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5)),
+      child: Form(
+        key: _renameFormKey,
+        child: Container(
+          color: Colors.transparent,
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, top: 8),
+                child: TextFormField(
+                  controller: renameCtrl,
+                  // ignore: missing_return
+                  validator: (String value) {
+                    if (value.trim().isEmpty) {
+                      return "Tag name can't be empty";
+                    }},
+                  autofocus: true,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    labelText: "Rename",
+                    hintText: "Enter new Name",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                  ),
                 ),
-                onSubmitted: (value) {
-                  updateTag(context,position);
-                  Navigator.pop(context);
+              ),
+              OutlineButton(
+                onPressed: () {
+                  if (_renameFormKey.currentState.validate()) {
+                    updateTag(context, position);
+                    Navigator.pop(context);
+                  }
                 },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                borderSide: BorderSide(color: Colors.cyan),
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: Colors.cyan),
+                ),
               ),
-            ),
-            OutlineButton(
-              onPressed: () {
-                updateTag(context,position);
-                Navigator.pop(context);
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              borderSide: BorderSide(color: Colors.cyan),
-              child: Text(
-                'Save',
-                style: TextStyle(color: Colors.cyan),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

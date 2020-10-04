@@ -76,6 +76,8 @@ class HomeState extends State<Home> {
   int selectedBarIndex = 0;
   List<FileD> allFiles;
 
+  var _formKey = GlobalKey<FormState>();
+
   static var _filesTypes = [
     'All Documents',
     'PDF',
@@ -785,44 +787,51 @@ class HomeState extends State<Home> {
   void _showAlertDialog(BuildContext context, String name, int position) {
     Dialog dialog = Dialog(
       backgroundColor: Colors.white,
-      child: Container(
-        color: Colors.transparent,
-        padding: EdgeInsets.all(15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 8),
-              child: TextField(
-                controller: renameCtrl,
-                autofocus: true,
-                style: TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  labelText: "Rename",
-                  hintText: "Enter new Name",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5)),
+      child: Form(
+        key: _formKey,
+        child: Container(
+          color: Colors.transparent,
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, top: 8),
+                child: TextFormField(
+                  controller: renameCtrl,
+                  // ignore: missing_return
+                  validator: (String value) {
+                    if (value.trim().isEmpty) {
+                      return "Name can't be empty";
+                    }
+                  },
+                  autofocus: true,
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    labelText: "Rename",
+                    hintText: "Enter new Name",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                  ),
                 ),
-                onSubmitted: (value) {
-                  rename(context, name, position);
-                  Navigator.pop(context);
+              ),
+              OutlineButton(
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    rename(context, name, position);
+                    Navigator.pop(context);
+                  }
                 },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                borderSide: BorderSide(color: Colors.cyan),
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: Colors.cyan),
+                ),
               ),
-            ),
-            OutlineButton(
-              onPressed: () {
-                rename(context, name, position);
-                Navigator.pop(context);
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              borderSide: BorderSide(color: Colors.cyan),
-              child: Text(
-                'Save',
-                style: TextStyle(color: Colors.cyan),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -857,7 +866,6 @@ class HomeState extends State<Home> {
                 OutlineButton(
                   onPressed: () {
                     setState(() {
-                      Navigator.pop(context);
                       Navigator.pop(context);
                       selectedBarIndex = 2;
                     });
