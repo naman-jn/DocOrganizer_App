@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:document_organizer/models/file.dart';
 import 'package:document_organizer/models/tag.dart';
 import 'package:document_organizer/screens/tags.dart';
@@ -131,8 +130,10 @@ class HomeState extends State<Home> {
         distance = details.globalPosition.dx - initial;
       },
       onPanEnd: (DragEndDetails details) {
-        if (distance < 0 && selectedBarIndex < 2) selectedBarIndex++;
-        if (distance > 0 && selectedBarIndex > 0) selectedBarIndex--;
+        print(distance);
+        print(Constants.allFileList.length);
+        if (distance < -7 && selectedBarIndex < 2 &&Constants.allFileList.length>0) selectedBarIndex++;
+        if (distance > 7 && selectedBarIndex > 0 &&Constants.allFileList.length>0) selectedBarIndex--;
         initial = 0.0;
         updateListView();
       },
@@ -154,6 +155,7 @@ class HomeState extends State<Home> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(Constants.isDrawerOpen ? 30 : 0),
           child: Scaffold(
+            resizeToAvoidBottomInset: false,
             key: _scaffoldKey,
             floatingActionButton: Container(
               width: 63,
@@ -168,7 +170,7 @@ class HomeState extends State<Home> {
                             shape: BoxShape.circle, color: Colors.blueGrey),
                         child: Icon(
                           selectedBarIndex == 2
-                              ? Icons.collections_bookmark
+                              ? Icons.create_new_folder
                               : Icons.note_add,
                           color: Colors.white,
                           size: 30,
@@ -450,8 +452,18 @@ class HomeState extends State<Home> {
                                     Expanded(
                                       child: TextField(
                                         onChanged: (search) {
+                                          List<FileD> files=allFiles;
+                                          if (Constants.filesType != null)
+                                            files = allFiles
+                                                .where((f) =>
+                                            (f.type.substring(0, 2).contains(Constants.filesType.substring(0, 2))))
+                                                .toList();
+                                          if (selectedBarIndex == 1) {
+                                            files = allFiles.where((f) => (f.fav == 1)).toList();
+                                            Constants.emptyFile = 'Favourite list is empty';
+                                          }
                                           setState(() {
-                                            fileList = allFiles
+                                            fileList = files
                                                 .where((f) => (f.name
                                                     .toLowerCase()
                                                     .contains(
@@ -500,7 +512,19 @@ class HomeState extends State<Home> {
                               child: allFiles.length == 0
                                   ? PickButton(this)
                                   : count == 0
-                                      ? Center(child: Text(Constants.emptyFile))
+                                      ? Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                          child: selectedBarIndex==0?Image.asset('Assets/emptyFile.png'):Image.asset('Assets/emptyFile2.png')),
+                                      SizedBox(height: 7,),
+                                      Text('Empty List!',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 20),),
+                                      SizedBox(height: 7,),
+                                      Text(Constants.emptyFile,style: TextStyle(fontWeight: FontWeight.w400,color: Colors.black,fontSize: 15),),
+
+                                    ],
+                                  ))
                                       : Padding(
                                           padding:
                                               const EdgeInsets.only(top: 11.0),
@@ -515,7 +539,7 @@ class HomeState extends State<Home> {
                                       height: 5,
                                       width: MediaQuery.of(context).size.width,
                                     ),
-                                    bottom: 3,
+                                    bottom: 0,
                                   ),
                           ]),
                         ),
@@ -712,7 +736,9 @@ class HomeState extends State<Home> {
   }
 
   Future<void> getFile(BuildContext context) async {
-    isProgressing = true;
+    setState(() {
+      isProgressing = true;
+    });
     File pickedFile;
     var status = await Permission.storage.status;
     if (status.isGranted) {
@@ -728,12 +754,16 @@ class HomeState extends State<Home> {
           'xls',
           'txt',
           'jpg',
-          'jpeg'
         ],
       );
 
       if (result != null) {
         pickedFile = File(result.files.single.path);
+      }
+      else{
+        setState(() {
+          isProgressing = false;
+        });
       }
     } else {
       var status = await Permission.storage.request();
@@ -747,6 +777,9 @@ class HomeState extends State<Home> {
       String newPath = Constants.docDirectory + '/' + basename(pickedFile.path);
 
       pickedFile = await pickedFile.copy(newPath);
+      var appDir = (await getTemporaryDirectory()).path;
+      print(appDir);
+      Directory(appDir).delete(recursive: true);
 
       file = FileD();
       file.name = basename(pickedFile.path);
@@ -757,7 +790,7 @@ class HomeState extends State<Home> {
           "/" +
           pickedFile.lastModifiedSync().year.toString();
       file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
-      file.type = pickedFile.path.split('.').last;
+      file.type = pickedFile.path.split('.').last.toLowerCase();
       file.fav = 0;
 
       int result = 0;
@@ -768,6 +801,9 @@ class HomeState extends State<Home> {
           _showSnackBar(context, 'File with same name already exists');
         } else
           print(e);
+        setState(() {
+          isProgressing = false;
+        });
       }
 
       if (result != 0) {
@@ -791,7 +827,7 @@ class HomeState extends State<Home> {
           if (Constants.filesType != null)
             files = files
                 .where((f) =>
-                    (f.type.contains(Constants.filesType.substring(0, 2))))
+                    (f.type.substring(0, 2).contains(Constants.filesType.substring(0, 2))))
                 .toList();
           if (selectedBarIndex == 1) {
             files = files.where((f) => (f.fav == 1)).toList();

@@ -15,6 +15,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.blueGrey[800],
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 59.0, horizontal: 9),
@@ -30,12 +31,12 @@ class _DrawerScreenState extends State<DrawerScreen> {
                     repeatForever: true,
                     pause: Duration(milliseconds: 6000),
                     onTap: () {},
-                    text: ["DOC ORGANIZER"],
+                    text: ["Doc Organizer"],
                     textStyle: TextStyle(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Audiowide",
-                      //letterSpacing: 0.5,
+                      letterSpacing: 0.9,
                     ),
                     colors: [
                       Colors.blue[100],
@@ -59,7 +60,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   text: ["  MANAGE", "  BROWSE", "ORGANIZE"],
                   textStyle: TextStyle(
                       fontSize: 19.0,
-                      fontFamily: 'Fredrick',
+                      fontFamily: 'Acme',
                       fontWeight: FontWeight.w500,
                       color: Colors.white,
                       letterSpacing: 1),

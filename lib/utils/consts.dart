@@ -30,41 +30,41 @@ class Constants {
       case 'PDF':
         filesType = 'pdf';
         image = Image.asset('Assets/pdf.png');
-        emptyFile = 'No file of PDF type';
+        emptyFile = 'No files of PDF type at this moment';
         return image;
         break;
 
       case 'DOC':
         filesType = 'docx';
         image = Image.asset('Assets/docx.png');
-        emptyFile = 'No file of DOC type';
+        emptyFile = 'No files of DOC type at this moment';
         return image;
         break;
 
       case 'PPT':
         filesType = 'pptx';
         image = Image.asset('Assets/ppt.png');
-        emptyFile = 'No file of PPT type';
+        emptyFile = 'No files of PPT type at this moment';
         return image;
         break;
 
       case 'XLS':
         filesType = 'xlsx';
         image = Image.asset('Assets/xls.png');
-        emptyFile = 'No file of EXCEL type';
+        emptyFile = 'No files of EXCEL type at this moment';
         return image;
         break;
 
       case 'TXT':
         filesType = 'txt';
         image = Image.asset('Assets/txt.png');
-        emptyFile = 'No files of TEXT type';
+        emptyFile = 'No files of TEXT type at this moment';
         return image;
         break;
       case 'JPG':
         filesType = 'jp';
         image = Image.asset('Assets/jpg.png');
-        emptyFile = 'No image file';
+        emptyFile = 'No image file at this moment';
         return image;
         break;
       default:
