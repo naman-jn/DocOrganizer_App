@@ -1,4 +1,3 @@
-import 'package:document_organizer/utils/consts.dart';
 import 'package:document_organizer/utils/database_helper.dart';
 
 class Tag{

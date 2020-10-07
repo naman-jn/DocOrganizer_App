@@ -166,58 +166,6 @@ class DatabaseHelper {
 
  }
 
-// void _showAddFileDialog(BuildContext context,Tag tag) {
-//   Dialog dialog = Dialog(
-//     backgroundColor: Colors.white,
-//     child: Container(
-//       color: Colors.transparent,
-//       padding: EdgeInsets.all(15),
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Text('Add file to tag',style: TextStyle(fontWeight: FontWeight.w700,fontSize: 21,letterSpacing: 1.2,color: Colors.blueGrey)),
-//           getFileListView(tag),
-//           OutlineButton(
-//             onPressed: () {
-//               Navigator.pop(context);
-//             },
-//             shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10)),
-//             borderSide: BorderSide(color: Colors.blue),
-//             child: Text(
-//               'Done',
-//               style: TextStyle(color: Colors.blue),
-//             ),
-//           ),
-//
-//         ],
-//       ),
-//     ),
-//   );
-//   showDialog(context: context, builder: (BuildContext context) => dialog);
-// }
-
-
-
-
-// ListView getFileListView(Tag tag) {
-//   return ListView.builder(
-//       scrollDirection: Axis.vertical,
-//       shrinkWrap: true,
-//       padding: EdgeInsets.all(0),
-//       itemCount: Constants.allTagList.length,
-//       itemBuilder: (context, i) => ListTile(
-//         contentPadding: EdgeInsets.all(0),
-//         title: Text(Constants.allFileList[i].name),
-//         onTap: (){
-//           tag.addFile(Constants.allFileList[i].id,tag);
-//           Navigator.pop(context);
-//           //print(Constants.allTagList[i].fileIds);
-//           //_showSnackBar(context, 'File added to '+Constants.allTagList[i].name);
-//         },
-//       ));
-// }
-
 
 
 
