@@ -1,9 +1,11 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:flutter/services.dart';
+//import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'faq.dart';
 import 'feedback.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 
 class DrawerScreen extends StatefulWidget {
   @override
@@ -74,8 +76,9 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextButton(
-                        onPressed: () {
-                          Share.share('Download the App here \nbit.ly/myJournalApp');
+                        onPressed: () async {
+                          final ByteData bytes = await rootBundle.load('Assets/doc_organizer.png');
+                          await Share.file('Doc Organizer', 'DocOrganizer.png', bytes.buffer.asUint8List(), 'image/png', text: 'This app has helped me organize my documents conveniently. Do check out the App here \nbit.ly/DocOrganizer');
                         },
                         child: Row(
                           children: [
