@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:document_organizer/models/file.dart';
 import 'package:document_organizer/models/tag.dart';
@@ -23,6 +24,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class Home extends StatefulWidget {
   final List<BarItem> barItems = [
@@ -51,8 +53,38 @@ class HomeState extends State<Home> {
   final FirebaseMessaging _fcm = FirebaseMessaging();
   static BuildContext alertContext;
 
+  StreamSubscription _intentDataStreamSubscription;
+
   @override
   void initState() {
+
+    //App in memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
+          print("Hai Bhai");
+          try{
+              getSharedFile(value.first.path);
+              print("Intent"+value.first.path);
+          }
+          catch(e){
+            print(e);
+          }
+        }, onError: (err) {
+          print("getIntentDataStream error: $err");
+        });
+    //App not in memory
+    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      Future.delayed(Duration(milliseconds: 15),(){
+        try{
+          getSharedFile(value.first.path);
+          print("Media"+value.first.path);
+        }
+        catch(e){
+          print(e);
+        }
+      });
+
+    });
     createDir();
     super.initState();
 
@@ -70,6 +102,12 @@ class HomeState extends State<Home> {
         showPushDialog(message);
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription.cancel();
+    super.dispose();
   }
 
   final GlobalKey<TagsPageState> _key = GlobalKey();
@@ -583,6 +621,8 @@ class HomeState extends State<Home> {
             onPressed: () {
               try {
                 OpenFile.open(fileList[position].path);
+                if(!File(fileList[position].path).existsSync())
+                  _showSnackBar(context, 'Error locating file');
               } catch (e) {
                 _showSnackBar(context, 'Error locating file');
                 print(e);
@@ -600,7 +640,9 @@ class HomeState extends State<Home> {
               FocusedMenuItem(
                 title: Text('Rename'),
                 onPressed: () {
-                  String name = fileList[position].name.split('.').first;
+                  int index = fileList[position].name.lastIndexOf('.');
+                  String name=fileList[position].name.substring(0,index);
+
                   _showAlertDialog(context, name, position);
                   renameCtrl.text = name;
                   renameCtrl.selection = TextSelection(
@@ -635,7 +677,6 @@ class HomeState extends State<Home> {
                       } catch (e) {
                         print(e);
                       }
-                      Navigator.pop(context);
                       _delete(context, fileList[position]);
                     }
                   },
@@ -1013,23 +1054,24 @@ class HomeState extends State<Home> {
       print(currFile.path);
       print(newPath);
 
-      int res = 0;
-      try {
-        currFile.renameSync(newPath);
-        res = 1;
-      } catch (e) {
-        _showSnackBar(context, 'Error locating file');
-        print(e);
-      }
-
-      if (res != 0) {
         fileList[position].path = newPath;
         fileList[position].name = basename(newPath);
         int result = 0;
 
         try {
           result = await databaseHelper.updateFileD(fileList[position]);
+
+          try {
+            currFile.renameSync(newPath);
+          } catch (e) {
+            _showSnackBar(context, 'Error locating file');
+            print(e);
+          }
+
         } catch (e) {
+
+          fileList[position].path = currFile.path;
+          fileList[position].name = basename(currFile.path);
           if (e.toString().contains('UNIQUE')) {
             _showSnackBar(context, 'File with same name already exists');
           } else
@@ -1039,7 +1081,7 @@ class HomeState extends State<Home> {
           _showSnackBar(context, 'File Renamed Successfully');
           updateListView();
         }
-      }
+
     }
   }
 
@@ -1109,5 +1151,47 @@ class HomeState extends State<Home> {
         ],
       ),
     );
+  }
+  Future<void> getSharedFile(String path)  async {
+
+    File pickedFile=File(path);
+
+    if (pickedFile != null) {
+      String newPath = Constants.docDirectory + "/" + basename(pickedFile.path);
+
+      pickedFile = await pickedFile.copy(newPath);
+      var appDir = (await getTemporaryDirectory()).path;
+      print(appDir);
+      Directory(appDir).delete(recursive: true);
+
+      file = FileD();
+      file.name = basename(pickedFile.path);
+      file.path = pickedFile.path;
+      file.date = pickedFile.lastModifiedSync().day.toString() +
+          "/" +
+          pickedFile.lastModifiedSync().month.toString() +
+          "/" +
+          pickedFile.lastModifiedSync().year.toString();
+      file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
+      file.type = pickedFile.path.split('.').last.toLowerCase();
+      file.fav = 0;
+
+      int result = 0;
+      try {
+        result = await databaseHelper.insertFileD(file);
+      } catch (e) {
+        if (e.toString().contains('UNIQUE')) {
+          print('File with same name already exists');
+        } else
+          print(e);
+      }
+
+      if (result != 0) {
+        updateListView();
+        selectedBarIndex = 0;
+        print(pickedFile.path);
+      } else {
+      }
+    }
   }
 }

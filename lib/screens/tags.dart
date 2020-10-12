@@ -9,6 +9,8 @@ import 'package:focused_menu/modals.dart';
 import 'package:open_file/open_file.dart';
 import 'package:share/share.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:io';
+
 
 class TagsPage extends StatefulWidget {
   final HomeState homeState;
@@ -240,6 +242,8 @@ class TagsPageState extends State<TagsPage> {
         onPressed: () {
           try {
             OpenFile.open(file.path);
+            if(!File(file.path).existsSync())
+              widget.showSnackBar(context, 'Error locating file');
           } catch (e) {
             widget.showSnackBar(context, 'Error locating file');
             print(e);

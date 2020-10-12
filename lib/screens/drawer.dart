@@ -1,7 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-//import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'faq.dart';
 import 'feedback.dart';
@@ -190,7 +189,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 29.0),
                 child: Text(
-                  'App version 1.0.0',
+                  'App version 1.0.2',
                   style: TextStyle(color: Colors.blue[100],),textScaleFactor: 1.2,
                 ),
               ),
