@@ -10,13 +10,13 @@ class AnimatedBottomBar extends StatefulWidget {
 
   AnimatedBottomBar(
       {this.barItems,
-        this.animationDuration = const Duration(milliseconds: 500),
-        this.onBarTap, this.barStyle,this.selectedIndex});
-
+      this.animationDuration = const Duration(milliseconds: 500),
+      this.onBarTap,
+      this.barStyle,
+      this.selectedIndex});
 
   @override
   _AnimatedBottomBarState createState() => _AnimatedBottomBarState();
-
 }
 
 class _AnimatedBottomBarState extends State<AnimatedBottomBar>
@@ -27,6 +27,7 @@ class _AnimatedBottomBarState extends State<AnimatedBottomBar>
     super.initState();
     selectedBarIndex = widget.selectedIndex;
   }
+
   @override
   void didUpdateWidget(covariant AnimatedBottomBar oldWidget) {
     if (widget.selectedIndex != oldWidget.selectedIndex) {
@@ -36,6 +37,7 @@ class _AnimatedBottomBarState extends State<AnimatedBottomBar>
       super.didUpdateWidget(oldWidget);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -66,9 +68,8 @@ class _AnimatedBottomBarState extends State<AnimatedBottomBar>
   }
 
   List<Widget> buildBarItems() {
-
     List<Widget> _barItems = List();
-    
+
     for (int i = 0; i < widget.barItems.length; i++) {
       BarItem item = widget.barItems[i];
       bool isSelected = selectedBarIndex == i;
@@ -123,7 +124,10 @@ class BarStyle {
   final double fontSize, iconSize;
   final FontWeight fontWeight;
 
-  BarStyle({this.fontSize = 18.0, this.iconSize = 32, this.fontWeight = FontWeight.bold});
+  BarStyle(
+      {this.fontSize = 18.0,
+      this.iconSize = 32,
+      this.fontWeight = FontWeight.bold});
 }
 
 class BarItem {

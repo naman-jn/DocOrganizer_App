@@ -17,20 +17,17 @@ class FileUtils {
     //return bytes.toString();
   }
 
-  static List<FileD> sortList(
-      List<FileD> list, int sort) {
+  static List<FileD> sortList(List<FileD> list, int sort) {
     switch (sort) {
       case 0:
-          return list
-            ..sort((f1, f2) => (f1.name)
-                .toLowerCase()
-                .compareTo((f2.name).toLowerCase()));
+        return list
+          ..sort((f1, f2) =>
+              (f1.name).toLowerCase().compareTo((f2.name).toLowerCase()));
 
         break;
       case 3:
-        list.sort((f1, f2) => (f1.name)
-            .toLowerCase()
-            .compareTo((f2.name).toLowerCase()));
+        list.sort((f1, f2) =>
+            (f1.name).toLowerCase().compareTo((f2.name).toLowerCase()));
         return list.reversed.toList();
         break;
 

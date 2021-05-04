@@ -11,7 +11,6 @@ import 'package:share/share.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
-
 class TagsPage extends StatefulWidget {
   final HomeState homeState;
   final Function changeDrawer;
@@ -95,25 +94,51 @@ class TagsPageState extends State<TagsPage> {
                   child: tagList.length == 0
                       ? Center(
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                  //width: 270,
-                                  child: Image.asset('Assets/emptyTag.png')),
-                              SizedBox(height: 7,),
-                              Text('Looks A Little Empty Here',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.blueGrey[300],fontSize: 20),),
-                              SizedBox(height: 5,),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('Press the ',style: TextStyle(fontWeight: FontWeight.w400,color: Colors.black,fontSize: 15,letterSpacing: 1),),
-                                  Icon(Icons.create_new_folder_outlined,size: 18,),
-                                  Text(' button to create new tag',style: TextStyle(fontWeight: FontWeight.w400,color: Colors.black,fontSize: 15,letterSpacing: 1),),
-                                ],
-                              )
-
-                            ],
-                          ))
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                                //width: 270,
+                                child: Image.asset('Assets/emptyTag.png')),
+                            SizedBox(
+                              height: 7,
+                            ),
+                            Text(
+                              'Looks A Little Empty Here',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey[300],
+                                  fontSize: 20),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Press the ',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      letterSpacing: 1),
+                                ),
+                                Icon(
+                                  Icons.create_new_folder_outlined,
+                                  size: 18,
+                                ),
+                                Text(
+                                  ' button to create new tag',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
+                                      fontSize: 15,
+                                      letterSpacing: 1),
+                                ),
+                              ],
+                            )
+                          ],
+                        ))
                       : getTagListView()),
             ],
           ),
@@ -242,7 +267,7 @@ class TagsPageState extends State<TagsPage> {
         onPressed: () {
           try {
             OpenFile.open(file.path);
-            if(!File(file.path).existsSync())
+            if (!File(file.path).existsSync())
               widget.showSnackBar(context, 'Error locating file');
           } catch (e) {
             widget.showSnackBar(context, 'Error locating file');
@@ -469,9 +494,9 @@ class TagsPageState extends State<TagsPage> {
       tagListFuture.then((tagList) {
         if (tagList != null) {
           setState(() {
-            TagsPageState.tagList = tagList..sort((t1, t2) => (t1.name)
-                .toLowerCase()
-                .compareTo((t2.name).toLowerCase()));
+            TagsPageState.tagList = tagList
+              ..sort((t1, t2) =>
+                  (t1.name).toLowerCase().compareTo((t2.name).toLowerCase()));
             //this.count = tagList.length;
           });
         }
@@ -485,9 +510,9 @@ class TagsPageState extends State<TagsPage> {
       Future<List<Tag>> tagListFuture = databaseHelper.getTagList();
       tagListFuture.then((tagList) {
         if (tagList != null) {
-          TagsPageState.tagList = tagList..sort((t1, t2) => (t1.name)
-              .toLowerCase()
-              .compareTo((t2.name).toLowerCase()));
+          TagsPageState.tagList = tagList
+            ..sort((t1, t2) =>
+                (t1.name).toLowerCase().compareTo((t2.name).toLowerCase()));
         }
       });
     });
@@ -512,7 +537,8 @@ class TagsPageState extends State<TagsPage> {
                   validator: (String value) {
                     if (value.trim().isEmpty) {
                       return "Tag name can't be empty";
-                    }},
+                    }
+                  },
                   autofocus: true,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
@@ -572,20 +598,17 @@ class TagsPageState extends State<TagsPage> {
   }
 
   Future<void> updateTag(BuildContext context, int position) async {
-    int result=0;
-    String temp= tagList[position].name;
-    tagList[position].name=renameCtrl.text;
+    int result = 0;
+    String temp = tagList[position].name;
+    tagList[position].name = renameCtrl.text;
     try {
       result = await databaseHelper.updateTag(tagList[position]);
       print(tagList[position].name);
-    }
-    catch(e){
-      if (e.toString().contains('UNIQUE'))
-      {
+    } catch (e) {
+      if (e.toString().contains('UNIQUE')) {
         widget.showSnackBar(context, 'Tag already exists');
-        tagList[position].name=temp;
-      }
-      else
+        tagList[position].name = temp;
+      } else
         print(e);
     }
     if (result != 0) {
@@ -593,5 +616,4 @@ class TagsPageState extends State<TagsPage> {
       updateListView();
     }
   }
-
 }

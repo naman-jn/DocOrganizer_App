@@ -57,33 +57,29 @@ class HomeState extends State<Home> {
 
   @override
   void initState() {
-
     //App in memory
-    _intentDataStreamSubscription =
-        ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
-          print("Hai Bhai");
-          try{
-              getSharedFile(value.first.path);
-              print("Intent"+value.first.path);
-          }
-          catch(e){
-            print(e);
-          }
-        }, onError: (err) {
-          print("getIntentDataStream error: $err");
-        });
+    _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
+        .listen((List<SharedMediaFile> value) {
+      print("Hai Bhai");
+      try {
+        getSharedFile(value.first.path);
+        print("Intent" + value.first.path);
+      } catch (e) {
+        print(e);
+      }
+    }, onError: (err) {
+      print("getIntentDataStream error: $err");
+    });
     //App not in memory
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-      Future.delayed(Duration(milliseconds: 15),(){
-        try{
+      Future.delayed(Duration(milliseconds: 15), () {
+        try {
           getSharedFile(value.first.path);
-          print("Media"+value.first.path);
-        }
-        catch(e){
+          print("Media" + value.first.path);
+        } catch (e) {
           print(e);
         }
       });
-
     });
     createDir();
     super.initState();
@@ -143,8 +139,6 @@ class HomeState extends State<Home> {
     'JPG'
   ];
 
-  FileD file;
-
   @override
   Widget build(BuildContext context) {
     if (fileList == null) {
@@ -170,8 +164,12 @@ class HomeState extends State<Home> {
       onPanEnd: (DragEndDetails details) {
         print(distance);
         print(Constants.allFileList.length);
-        if (distance < -7 && selectedBarIndex < 2 &&Constants.allFileList.length>0) selectedBarIndex++;
-        if (distance > 7 && selectedBarIndex > 0 &&Constants.allFileList.length>0) selectedBarIndex--;
+        if (distance < -7 &&
+            selectedBarIndex < 2 &&
+            Constants.allFileList.length > 0) selectedBarIndex++;
+        if (distance > 7 &&
+            selectedBarIndex > 0 &&
+            Constants.allFileList.length > 0) selectedBarIndex--;
         initial = 0.0;
         updateListView();
       },
@@ -490,15 +488,21 @@ class HomeState extends State<Home> {
                                     Expanded(
                                       child: TextField(
                                         onChanged: (search) {
-                                          List<FileD> files=allFiles;
+                                          List<FileD> files = allFiles;
                                           if (Constants.filesType != null)
                                             files = allFiles
-                                                .where((f) =>
-                                            (f.type.substring(0, 2).contains(Constants.filesType.substring(0, 2))))
+                                                .where((f) => (f.type
+                                                    .substring(0, 2)
+                                                    .contains(Constants
+                                                        .filesType
+                                                        .substring(0, 2))))
                                                 .toList();
                                           if (selectedBarIndex == 1) {
-                                            files = allFiles.where((f) => (f.fav == 1)).toList();
-                                            Constants.emptyFile = 'Favourite list is empty';
+                                            files = allFiles
+                                                .where((f) => (f.fav == 1))
+                                                .toList();
+                                            Constants.emptyFile =
+                                                'Favourite list is empty';
                                           }
                                           setState(() {
                                             fileList = files
@@ -551,18 +555,37 @@ class HomeState extends State<Home> {
                                   ? PickButton(this)
                                   : count == 0
                                       ? Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                          child: selectedBarIndex==0?Image.asset('Assets/emptyFile.png'):Image.asset('Assets/emptyFile2.png')),
-                                      SizedBox(height: 7,),
-                                      Text('Empty List!',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 20),),
-                                      SizedBox(height: 7,),
-                                      Text(Constants.emptyFile,style: TextStyle(fontWeight: FontWeight.w400,color: Colors.black,fontSize: 15),),
-
-                                    ],
-                                  ))
+                                          child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedBox(
+                                                child: selectedBarIndex == 0
+                                                    ? Image.asset(
+                                                        'Assets/emptyFile.png')
+                                                    : Image.asset(
+                                                        'Assets/emptyFile2.png')),
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Text(
+                                              'Empty List!',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                  fontSize: 20),
+                                            ),
+                                            SizedBox(
+                                              height: 7,
+                                            ),
+                                            Text(
+                                              Constants.emptyFile,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Colors.black,
+                                                  fontSize: 15),
+                                            ),
+                                          ],
+                                        ))
                                       : Padding(
                                           padding:
                                               const EdgeInsets.only(top: 11.0),
@@ -621,7 +644,7 @@ class HomeState extends State<Home> {
             onPressed: () {
               try {
                 OpenFile.open(fileList[position].path);
-                if(!File(fileList[position].path).existsSync())
+                if (!File(fileList[position].path).existsSync())
                   _showSnackBar(context, 'Error locating file');
               } catch (e) {
                 _showSnackBar(context, 'Error locating file');
@@ -641,7 +664,7 @@ class HomeState extends State<Home> {
                 title: Text('Rename'),
                 onPressed: () {
                   int index = fileList[position].name.lastIndexOf('.');
-                  String name=fileList[position].name.substring(0,index);
+                  String name = fileList[position].name.substring(0, index);
 
                   _showAlertDialog(context, name, position);
                   renameCtrl.text = name;
@@ -772,7 +795,7 @@ class HomeState extends State<Home> {
       content: Text(message),
       duration: Duration(milliseconds: 700),
     );
-    //Scaffold.of(context).showSnackBar(snackBar);
+    //ScaffoldMessenger.of(context).showSnackBar(snackBar);
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 
@@ -780,28 +803,32 @@ class HomeState extends State<Home> {
     setState(() {
       isProgressing = true;
     });
-    File pickedFile;
+    List<File> pickedFiles = [];
     var status = await Permission.storage.status;
     if (status.isGranted) {
       FilePickerResult result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [
-          'pdf',
-          'docx',
-          'doc',
-          'ppt',
-          'pptx',
-          'xlsx',
-          'xls',
-          'txt',
-          'jpg',
-        ],
-      );
+          type: FileType.custom,
+          allowedExtensions: [
+            'pdf',
+            'docx',
+            'doc',
+            'ppt',
+            'pptx',
+            'xlsx',
+            'xls',
+            'txt',
+            'jpg',
+          ],
+          allowMultiple: true);
 
       if (result != null) {
-        pickedFile = File(result.files.single.path);
-      }
-      else{
+        result.files.forEach((element) {
+          print(element.path);
+        });
+        result.files.forEach((file) {
+          pickedFiles.add(File(file.path));
+        });
+      } else {
         setState(() {
           isProgressing = false;
         });
@@ -814,34 +841,45 @@ class HomeState extends State<Home> {
         getFile(context);
     }
 
-    if (pickedFile != null) {
-      String newPath = Constants.docDirectory + '/' + basename(pickedFile.path);
+    List<FileD> files = [];
+    int i = 0;
+    if (pickedFiles != null) {
+      await Future.forEach(pickedFiles, (pickedFile) async {
+        String newPath =
+            Constants.docDirectory + '/' + basename(pickedFile.path);
+        print(newPath);
+        pickedFile = await pickedFile.copy(newPath);
 
-      pickedFile = await pickedFile.copy(newPath);
+        FileD file = FileD();
+        file.name = basename(pickedFile.path);
+        file.path = pickedFile.path;
+        file.date = pickedFile.lastModifiedSync().day.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().month.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().year.toString();
+        file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
+        file.type = pickedFile.path.split('.').last.toLowerCase();
+        file.fav = 0;
+        print(file.date);
+        files.insert(i++, file);
+        print(i);
+      });
+
       var appDir = (await getTemporaryDirectory()).path;
-      print(appDir);
       Directory(appDir).delete(recursive: true);
-
-      file = FileD();
-      file.name = basename(pickedFile.path);
-      file.path = pickedFile.path;
-      file.date = pickedFile.lastModifiedSync().day.toString() +
-          "/" +
-          pickedFile.lastModifiedSync().month.toString() +
-          "/" +
-          pickedFile.lastModifiedSync().year.toString();
-      file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
-      file.type = pickedFile.path.split('.').last.toLowerCase();
-      file.fav = 0;
+      files.forEach((element) {
+        print(element.name);
+      });
 
       int result = 0;
       try {
-        result = await databaseHelper.insertFileD(file);
+        result = await databaseHelper.insertFilesD(files);
       } catch (e) {
         if (e.toString().contains('UNIQUE')) {
           _showSnackBar(context, 'File with same name already exists');
         } else
-          print(e);
+          print('Catched Error -$e');
         setState(() {
           isProgressing = false;
         });
@@ -850,7 +888,6 @@ class HomeState extends State<Home> {
       if (result != 0) {
         updateListView();
         selectedBarIndex = 0;
-        print(pickedFile.path);
       } else {
         // Failure
       }
@@ -867,8 +904,9 @@ class HomeState extends State<Home> {
           List<FileD> files = fileList;
           if (Constants.filesType != null)
             files = files
-                .where((f) =>
-                    (f.type.substring(0, 2).contains(Constants.filesType.substring(0, 2))))
+                .where((f) => (f.type
+                    .substring(0, 2)
+                    .contains(Constants.filesType.substring(0, 2))))
                 .toList();
           if (selectedBarIndex == 1) {
             files = files.where((f) => (f.fav == 1)).toList();
@@ -1054,34 +1092,31 @@ class HomeState extends State<Home> {
       print(currFile.path);
       print(newPath);
 
-        fileList[position].path = newPath;
-        fileList[position].name = basename(newPath);
-        int result = 0;
+      fileList[position].path = newPath;
+      fileList[position].name = basename(newPath);
+      int result = 0;
+
+      try {
+        result = await databaseHelper.updateFileD(fileList[position]);
 
         try {
-          result = await databaseHelper.updateFileD(fileList[position]);
-
-          try {
-            currFile.renameSync(newPath);
-          } catch (e) {
-            _showSnackBar(context, 'Error locating file');
-            print(e);
-          }
-
+          currFile.renameSync(newPath);
         } catch (e) {
-
-          fileList[position].path = currFile.path;
-          fileList[position].name = basename(currFile.path);
-          if (e.toString().contains('UNIQUE')) {
-            _showSnackBar(context, 'File with same name already exists');
-          } else
-            print(e);
+          _showSnackBar(context, 'Error locating file');
+          print(e);
         }
-        if (result != 0) {
-          _showSnackBar(context, 'File Renamed Successfully');
-          updateListView();
-        }
-
+      } catch (e) {
+        fileList[position].path = currFile.path;
+        fileList[position].name = basename(currFile.path);
+        if (e.toString().contains('UNIQUE')) {
+          _showSnackBar(context, 'File with same name already exists');
+        } else
+          print(e);
+      }
+      if (result != 0) {
+        _showSnackBar(context, 'File Renamed Successfully');
+        updateListView();
+      }
     }
   }
 
@@ -1107,7 +1142,7 @@ class HomeState extends State<Home> {
     //Directory baseDir = await getApplicationDocumentsDirectory(); //works for both iOS and Android
     final dir = Directory(baseDir.path + "/docs");
     Constants.docDirectory = dir.path;
-    //print(baseDir.path);
+    print(baseDir.path);
     bool dirExists = await dir.exists();
     if (!dirExists) {
       dir.create(/*recursive=true*/);
@@ -1119,22 +1154,26 @@ class HomeState extends State<Home> {
     showDialog(
       context: alertContext,
       builder: (context) => AlertDialog(
-        contentPadding: EdgeInsets.only(top:9,bottom: 0,left: 11,right: 7),
+        contentPadding: EdgeInsets.only(top: 9, bottom: 0, left: 11, right: 7),
         actionsPadding: EdgeInsets.all(0),
         title: Center(child: Text('Notification')),
         content: ListTile(
           contentPadding: EdgeInsets.all(0),
           title: Text(
-            message['data']['title']==null?'Sorry':message['data']['title'],
+            message['data']['title'] == null
+                ? 'Sorry'
+                : message['data']['title'],
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
             ),
           ),
           subtitle: Padding(
-            padding: const EdgeInsets.only(top:7.0),
+            padding: const EdgeInsets.only(top: 7.0),
             child: Text(
-              message['data']['body']==null?"Couldn't load data":message['data']['body'],
+              message['data']['body'] == null
+                  ? "Couldn't load data"
+                  : message['data']['body'],
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -1152,9 +1191,9 @@ class HomeState extends State<Home> {
       ),
     );
   }
-  Future<void> getSharedFile(String path)  async {
 
-    File pickedFile=File(path);
+  Future<void> getSharedFile(String path) async {
+    File pickedFile = File(path);
 
     if (pickedFile != null) {
       String newPath = Constants.docDirectory + "/" + basename(pickedFile.path);
@@ -1164,7 +1203,7 @@ class HomeState extends State<Home> {
       print(appDir);
       Directory(appDir).delete(recursive: true);
 
-      file = FileD();
+      FileD file = FileD();
       file.name = basename(pickedFile.path);
       file.path = pickedFile.path;
       file.date = pickedFile.lastModifiedSync().day.toString() +
@@ -1190,8 +1229,7 @@ class HomeState extends State<Home> {
         updateListView();
         selectedBarIndex = 0;
         print(pickedFile.path);
-      } else {
-      }
+      } else {}
     }
   }
 }

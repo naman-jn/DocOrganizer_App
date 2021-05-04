@@ -258,7 +258,6 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
 
   void _showAlertDialog(BuildContext context) {
     Dialog dialog = Dialog(
-      backgroundColor: Colors.transparent,
       child: Container(
         color: Colors.transparent,
         padding: EdgeInsets.all(15),

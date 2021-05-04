@@ -234,7 +234,6 @@ class _UserFeedbackState extends State<UserFeedback> {
   }
 
   Future<void> _add() async {
-
     String fcmToken = await _fcm.getToken();
 
     Map<String, dynamic> data = {
@@ -286,6 +285,9 @@ class _UserFeedbackState extends State<UserFeedback> {
         ),
       ),
     );
-    showDialog(context: context, builder: (BuildContext context) => dialog,barrierDismissible: false);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => dialog,
+        barrierDismissible: false);
   }
 }

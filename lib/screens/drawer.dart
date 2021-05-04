@@ -76,8 +76,12 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   children: [
                     TextButton(
                         onPressed: () async {
-                          final ByteData bytes = await rootBundle.load('Assets/doc_organizer.png');
-                          await Share.file('Doc Organizer', 'DocOrganizer.png', bytes.buffer.asUint8List(), 'image/png', text: 'This app has helped me organize my documents conveniently. Do check out the App here \nbit.ly/DocOrganizer');
+                          final ByteData bytes =
+                              await rootBundle.load('Assets/doc_organizer.png');
+                          await Share.file('Doc Organizer', 'DocOrganizer.png',
+                              bytes.buffer.asUint8List(), 'image/png',
+                              text:
+                                  'This app has helped me organize my documents conveniently. Do check out the App here \nbit.ly/DocOrganizer');
                         },
                         child: Row(
                           children: [
@@ -103,9 +107,9 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 20,
                     ),
                     TextButton(
-                        onPressed: (){
-                          Navigator.push(context, ScaleRoute(page: UserFeedback()
-                          ));
+                        onPressed: () {
+                          Navigator.push(
+                              context, ScaleRoute(page: UserFeedback()));
                         },
                         child: Row(
                           children: [
@@ -131,10 +135,9 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 20,
                     ),
                     TextButton(
-                        onPressed: (){
-                    Navigator.push(context, ScaleRoute(page: FAQ()
-                    ));
-                    },
+                        onPressed: () {
+                          Navigator.push(context, ScaleRoute(page: FAQ()));
+                        },
                         child: Row(
                           children: [
                             Icon(
@@ -159,8 +162,9 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 20,
                     ),
                     TextButton(
-                        onPressed: (){
-                          const url = 'mailto:naman.jn.dev@gmail.com?subject=Doc Organizer-User&body=';
+                        onPressed: () {
+                          const url =
+                              'mailto:naman.jn.dev@gmail.com?subject=Doc Organizer-User&body=';
                           launch(url);
                         },
                         child: Row(
@@ -190,7 +194,10 @@ class _DrawerScreenState extends State<DrawerScreen> {
                 padding: const EdgeInsets.only(left: 29.0),
                 child: Text(
                   'App version 1.0.2',
-                  style: TextStyle(color: Colors.blue[100],),textScaleFactor: 1.2,
+                  style: TextStyle(
+                    color: Colors.blue[100],
+                  ),
+                  textScaleFactor: 1.2,
                 ),
               ),
             ],
@@ -208,29 +215,29 @@ class ScaleRoute extends PageRouteBuilder {
   final Widget page;
   ScaleRoute({this.page})
       : super(
-    pageBuilder: (
-        BuildContext context,
-        Animation<double> animation,
-        Animation<double> secondaryAnimation,
-        ) =>
-    page,
-    transitionsBuilder: (
-        BuildContext context,
-        Animation<double> animation,
-        Animation<double> secondaryAnimation,
-        Widget child,
-        ) =>
-        ScaleTransition(
-          scale: Tween<double>(
-            begin: 0.0,
-            end: 1.0,
-          ).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: Curves.fastOutSlowIn,
+          pageBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) =>
+              page,
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              ScaleTransition(
+            scale: Tween<double>(
+              begin: 0.0,
+              end: 1.0,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.fastOutSlowIn,
+              ),
             ),
+            child: child,
           ),
-          child: child,
-        ),
-  );
+        );
 }

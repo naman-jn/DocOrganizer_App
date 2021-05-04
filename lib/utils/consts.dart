@@ -8,17 +8,16 @@ class Constants {
 
   static bool isDrawerOpen = false;
 
-  static String currentItemSelected='All Documents';
+  static String currentItemSelected = 'All Documents';
   static String filesType;
   static String emptyFile = '';
   static String docDirectory;
-
 
   static var allFileList;
   static var allTagList;
 
   static Image setDocType() {
-    Image image=Image.asset('Assets/doc.png');
+    Image image = Image.asset('Assets/doc.png');
     switch (currentItemSelected) {
       case 'All Documents':
         filesType = null;
@@ -73,7 +72,7 @@ class Constants {
   }
 
   static Image fileImage(String type) {
-    Image _image=Image.asset('Assets/doc.png');
+    Image _image = Image.asset('Assets/doc.png');
     switch (type) {
       case 'pdf':
         _image = Image.asset('Assets/pdf.png');
@@ -125,6 +124,3 @@ class Constants {
     }
   }
 }
-
-
-
