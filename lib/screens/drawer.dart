@@ -1,4 +1,5 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:document_organizer/screens/videos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -74,6 +75,34 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    TextButton(
+                        onPressed: () async {
+                          Navigator.push(
+                              context, ScaleRoute(page: VideoPage()));
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.ondemand_video_outlined,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 7,
+                            ),
+                            Text(
+                              'How to Videos',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'RedRose',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
+                                  letterSpacing: 0.5),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 20,
+                    ),
                     TextButton(
                         onPressed: () async {
                           final ByteData bytes =
@@ -193,7 +222,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 29.0),
                 child: Text(
-                  'App version 1.0.2',
+                  'App version 2.0.1',
                   style: TextStyle(
                     color: Colors.blue[100],
                   ),

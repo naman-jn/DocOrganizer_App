@@ -23,7 +23,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
-import 'package:upgrader/upgrader.dart';
+// import 'package:upgrader/upgrader.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class Home extends StatefulWidget {
@@ -61,9 +61,14 @@ class HomeState extends State<Home> {
     _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
         .listen((List<SharedMediaFile> value) {
       print("Hai Bhai");
+      List<String> filePaths;
+      if (value != null)
+        filePaths = value.map((file) {
+          return file.path;
+        }).toList();
       try {
-        getSharedFile(value.first.path);
-        print("Intent" + value.first.path);
+        getSharedFile(filePaths);
+        print("Intent" + filePaths.toString());
       } catch (e) {
         print(e);
       }
@@ -73,9 +78,14 @@ class HomeState extends State<Home> {
     //App not in memory
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
       Future.delayed(Duration(milliseconds: 15), () {
+        List<String> filePaths;
+        if (value != null)
+          filePaths = value.map((file) {
+            return file.path;
+          }).toList();
         try {
-          getSharedFile(value.first.path);
-          print("Media" + value.first.path);
+          getSharedFile(filePaths);
+          print("Media" + filePaths.toString());
         } catch (e) {
           print(e);
         }
@@ -227,386 +237,379 @@ class HomeState extends State<Home> {
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
-            body: UpgradeAlert(
-              child: selectedBarIndex == 2
-                  ? TagsPage(_key, HomeState(), changeDrawer, _showSnackBar)
-                  : Column(
-                      children: [
-                        Stack(
-                          children: [
-                            Container(
-                              width: 500,
-                              height: 160,
-                              margin: EdgeInsets.only(bottom: 18),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(36),
-                                    bottomRight: Radius.circular(36)),
-                                color: selectedBarIndex == 0
-                                    ? Colors.blue[100]
-                                    : Colors.red[100],
-                              ),
+            body: selectedBarIndex == 2
+                ? TagsPage(_key, HomeState(), changeDrawer, _showSnackBar)
+                : Column(
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: 500,
+                            height: 160,
+                            margin: EdgeInsets.only(bottom: 18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(36),
+                                  bottomRight: Radius.circular(36)),
+                              color: selectedBarIndex == 0
+                                  ? Colors.blue[100]
+                                  : Colors.red[100],
                             ),
-                            Column(
-                              children: [
-                                SizedBox(
-                                  height: 45,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 9),
-                                      child: IconButton(
-                                        icon: Icon(Constants.isDrawerOpen
-                                            ? Icons.clear
-                                            : Icons.menu),
-                                        iconSize: 30,
-                                        onPressed: () {
-                                          changeDrawer();
-                                        },
-                                      ),
+                          ),
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 45,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 9),
+                                    child: IconButton(
+                                      icon: Icon(Constants.isDrawerOpen
+                                          ? Icons.clear
+                                          : Icons.menu),
+                                      iconSize: 30,
+                                      onPressed: () {
+                                        changeDrawer();
+                                      },
                                     ),
-                                    Card(
-                                      color: Colors.transparent,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(9),
-                                      ),
-                                      elevation: 0,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 15),
-                                        child: Row(children: [
-                                          SizedBox(
-                                            child: Constants.setDocType(),
-                                            height: 30,
-                                            width: 30,
-                                          ),
-                                          SizedBox(
-                                            width: 15,
-                                          ),
-                                          DropdownButtonHideUnderline(
-                                            child: DropdownButton(
-                                              items: _filesTypes
-                                                  .map((value) =>
-                                                      DropdownMenuItem(
-                                                        child: Text(value),
-                                                        value: value,
-                                                      ))
-                                                  .toList(),
-                                              value:
-                                                  Constants.currentItemSelected,
-                                              onChanged: (newValueSelected) {
-                                                setState(() {
-                                                  Constants
-                                                          .currentItemSelected =
-                                                      newValueSelected;
-                                                  Constants.setDocType();
-                                                  updateListView();
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ]),
-                                      ),
+                                  ),
+                                  Card(
+                                    color: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(9),
                                     ),
-                                    IconButton(
-                                        padding: EdgeInsets.only(
-                                            right: 10, bottom: 5),
-                                        icon: SizedBox(
-                                          child: Image.asset('Assets/sort.png'),
-                                          width: 24,
-                                          height: 24,
+                                    elevation: 0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15),
+                                      child: Row(children: [
+                                        SizedBox(
+                                          child: Constants.setDocType(),
+                                          height: 30,
+                                          width: 30,
                                         ),
-                                        onPressed: () {
-                                          showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) {
-                                                return StatefulBuilder(builder:
-                                                    (BuildContext context,
-                                                        StateSetter
-                                                            setModelState) {
-                                                  Widget customRadio(
-                                                      String txt, int index) {
-                                                    return OutlineButton(
-                                                      onPressed: () {
-                                                        setModelState(() {
-                                                          setState(() {
-                                                            sortIndex = index;
-                                                            sort = sortByIndex ==
-                                                                    0
-                                                                ? sortIndex
-                                                                : 3 + sortIndex;
-                                                            print(
-                                                                '$sortIndex $sortByIndex $sort');
-                                                            fileList = FileUtils
-                                                                .sortList(
-                                                                    fileList,
-                                                                    sort);
-                                                          });
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                            items: _filesTypes
+                                                .map(
+                                                    (value) => DropdownMenuItem(
+                                                          child: Text(value),
+                                                          value: value,
+                                                        ))
+                                                .toList(),
+                                            value:
+                                                Constants.currentItemSelected,
+                                            onChanged: (newValueSelected) {
+                                              setState(() {
+                                                Constants.currentItemSelected =
+                                                    newValueSelected;
+                                                Constants.setDocType();
+                                                updateListView();
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                  ),
+                                  IconButton(
+                                      padding:
+                                          EdgeInsets.only(right: 10, bottom: 5),
+                                      icon: SizedBox(
+                                        child: Image.asset('Assets/sort.png'),
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                            context: context,
+                                            builder: (context) {
+                                              return StatefulBuilder(builder:
+                                                  (BuildContext context,
+                                                      StateSetter
+                                                          setModelState) {
+                                                Widget customRadio(
+                                                    String txt, int index) {
+                                                  return OutlineButton(
+                                                    onPressed: () {
+                                                      setModelState(() {
+                                                        setState(() {
+                                                          sortIndex = index;
+                                                          sort = sortByIndex ==
+                                                                  0
+                                                              ? sortIndex
+                                                              : 3 + sortIndex;
+                                                          print(
+                                                              '$sortIndex $sortByIndex $sort');
+                                                          fileList = FileUtils
+                                                              .sortList(
+                                                                  fileList,
+                                                                  sort);
                                                         });
-                                                      },
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                      borderSide: BorderSide(
+                                                      });
+                                                    },
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            sortIndex == index
+                                                                ? Colors.cyan
+                                                                : Colors.grey),
+                                                    child: Text(
+                                                      txt,
+                                                      textScaleFactor: 1.2,
+                                                      style: TextStyle(
                                                           color: sortIndex ==
                                                                   index
                                                               ? Colors.cyan
                                                               : Colors.grey),
-                                                      child: Text(
-                                                        txt,
-                                                        textScaleFactor: 1.2,
-                                                        style: TextStyle(
-                                                            color: sortIndex ==
-                                                                    index
-                                                                ? Colors.cyan
-                                                                : Colors.grey),
-                                                      ),
-                                                    );
-                                                  }
+                                                    ),
+                                                  );
+                                                }
 
-                                                  Widget customRadio2(
-                                                      String txt, int index) {
-                                                    return OutlineButton(
-                                                      onPressed: () {
-                                                        setModelState(() {
-                                                          setState(() {
-                                                            sortByIndex = index;
-                                                            sort = sortByIndex ==
-                                                                    0
-                                                                ? sortIndex
-                                                                : 3 + sortIndex;
-                                                            print(
-                                                                '$sortIndex $sortByIndex $sort');
-                                                            fileList = FileUtils
-                                                                .sortList(
-                                                                    fileList,
-                                                                    sort);
-                                                          });
+                                                Widget customRadio2(
+                                                    String txt, int index) {
+                                                  return OutlineButton(
+                                                    onPressed: () {
+                                                      setModelState(() {
+                                                        setState(() {
+                                                          sortByIndex = index;
+                                                          sort = sortByIndex ==
+                                                                  0
+                                                              ? sortIndex
+                                                              : 3 + sortIndex;
+                                                          print(
+                                                              '$sortIndex $sortByIndex $sort');
+                                                          fileList = FileUtils
+                                                              .sortList(
+                                                                  fileList,
+                                                                  sort);
                                                         });
-                                                      },
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                      borderSide: BorderSide(
+                                                      });
+                                                    },
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                    borderSide: BorderSide(
+                                                        color: sortByIndex ==
+                                                                index
+                                                            ? Colors
+                                                                .deepOrangeAccent
+                                                            : Colors.grey),
+                                                    child: Text(
+                                                      txt,
+                                                      textScaleFactor: 1.1,
+                                                      style: TextStyle(
                                                           color: sortByIndex ==
                                                                   index
                                                               ? Colors
                                                                   .deepOrangeAccent
                                                               : Colors.grey),
-                                                      child: Text(
-                                                        txt,
-                                                        textScaleFactor: 1.1,
-                                                        style: TextStyle(
-                                                            color: sortByIndex ==
-                                                                    index
-                                                                ? Colors
-                                                                    .deepOrangeAccent
-                                                                : Colors.grey),
-                                                      ),
-                                                    );
-                                                  }
+                                                    ),
+                                                  );
+                                                }
 
-                                                  return Container(
-                                                      padding:
-                                                          EdgeInsets.all(20),
-                                                      height: 290,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            'Sort By',
-                                                            textScaleFactor:
-                                                                1.4,
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height: 21,
-                                                          ),
-                                                          customRadio(
-                                                              sortItems[0], 0),
-                                                          customRadio(
-                                                              sortItems[1], 1),
-                                                          customRadio(
-                                                              sortItems[2], 2),
-                                                          SizedBox(
-                                                            height: 7,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              customRadio2(
-                                                                  sortBy[0], 0),
-                                                              SizedBox(
-                                                                width: 9,
-                                                              ),
-                                                              customRadio2(
-                                                                  sortBy[1], 1),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ));
-                                                });
+                                                return Container(
+                                                    padding: EdgeInsets.all(20),
+                                                    height: 290,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Sort By',
+                                                          textScaleFactor: 1.4,
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 21,
+                                                        ),
+                                                        customRadio(
+                                                            sortItems[0], 0),
+                                                        customRadio(
+                                                            sortItems[1], 1),
+                                                        customRadio(
+                                                            sortItems[2], 2),
+                                                        SizedBox(
+                                                          height: 7,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            customRadio2(
+                                                                sortBy[0], 0),
+                                                            SizedBox(
+                                                              width: 9,
+                                                            ),
+                                                            customRadio2(
+                                                                sortBy[1], 1),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ));
                                               });
-                                        })
+                                            });
+                                      })
+                                ],
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 35),
+                                height: 54,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      offset: Offset(0, 7),
+                                      blurRadius: 15,
+                                      color: Colors.blueGrey.withOpacity(0.39),
+                                    ),
                                   ],
                                 ),
-                              ],
-                            ),
-                            Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 35),
-                                  height: 54,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        offset: Offset(0, 7),
-                                        blurRadius: 15,
-                                        color:
-                                            Colors.blueGrey.withOpacity(0.39),
+                                child: Row(children: <Widget>[
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (search) {
+                                        List<FileD> files = allFiles;
+                                        if (Constants.filesType != null)
+                                          files = allFiles
+                                              .where((f) => (f.type
+                                                  .substring(0, 2)
+                                                  .contains(Constants.filesType
+                                                      .substring(0, 2))))
+                                              .toList();
+                                        if (selectedBarIndex == 1) {
+                                          files = allFiles
+                                              .where((f) => (f.fav == 1))
+                                              .toList();
+                                          Constants.emptyFile =
+                                              'Favourite list is empty';
+                                        }
+                                        setState(() {
+                                          fileList = files
+                                              .where((f) => (f.name
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      search.toLowerCase())))
+                                              .toList();
+                                          count = fileList.length;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 15),
+                                        hintText: "Search",
+                                        hintStyle: TextStyle(
+                                          color:
+                                              Colors.blueGrey.withOpacity(0.5),
+                                        ),
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                  child: Row(children: <Widget>[
-                                    Expanded(
-                                      child: TextField(
-                                        onChanged: (search) {
-                                          List<FileD> files = allFiles;
-                                          if (Constants.filesType != null)
-                                            files = allFiles
-                                                .where((f) => (f.type
-                                                    .substring(0, 2)
-                                                    .contains(Constants
-                                                        .filesType
-                                                        .substring(0, 2))))
-                                                .toList();
-                                          if (selectedBarIndex == 1) {
-                                            files = allFiles
-                                                .where((f) => (f.fav == 1))
-                                                .toList();
-                                            Constants.emptyFile =
-                                                'Favourite list is empty';
-                                          }
-                                          setState(() {
-                                            fileList = files
-                                                .where((f) => (f.name
-                                                    .toLowerCase()
-                                                    .contains(
-                                                        search.toLowerCase())))
-                                                .toList();
-                                            count = fileList.length;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 15),
-                                          hintText: "Search",
-                                          hintStyle: TextStyle(
-                                            color: Colors.blueGrey
-                                                .withOpacity(0.5),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Icon(
+                                      Icons.search,
+                                      color: Colors.blueGrey.withOpacity(0.7),
+                                    ),
+                                  ),
+                                ]),
+                              )),
+                        ],
+                      ),
+                      Expanded(
+                        child: Stack(children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 45),
+                            padding: EdgeInsets.only(top: 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(70)),
+                              color: selectedBarIndex == 0
+                                  ? Colors.blue[50]
+                                  : Colors.red[50],
+                            ),
+                            child: allFiles.length == 0
+                                ? PickButton(this)
+                                : count == 0
+                                    ? Center(
+                                        child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                              child: selectedBarIndex == 0
+                                                  ? Image.asset(
+                                                      'Assets/emptyFile.png')
+                                                  : Image.asset(
+                                                      'Assets/emptyFile2.png')),
+                                          SizedBox(
+                                            height: 7,
                                           ),
-                                          enabledBorder: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                        ),
+                                          Text(
+                                            'Empty List!',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 20),
+                                          ),
+                                          SizedBox(
+                                            height: 7,
+                                          ),
+                                          Text(
+                                            Constants.emptyFile,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                color: Colors.black,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      ))
+                                    : Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 11.0),
+                                        child: getFileListView(),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: Icon(
-                                        Icons.search,
-                                        color: Colors.blueGrey.withOpacity(0.7),
-                                      ),
-                                    ),
-                                  ]),
-                                )),
-                          ],
-                        ),
-                        Expanded(
-                          child: Stack(children: [
-                            Container(
-                              margin: EdgeInsets.only(top: 45),
-                              padding: EdgeInsets.only(top: 5),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(70)),
-                                color: selectedBarIndex == 0
-                                    ? Colors.blue[50]
-                                    : Colors.red[50],
-                              ),
-                              child: allFiles.length == 0
-                                  ? PickButton(this)
-                                  : count == 0
-                                      ? Center(
-                                          child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(
-                                                child: selectedBarIndex == 0
-                                                    ? Image.asset(
-                                                        'Assets/emptyFile.png')
-                                                    : Image.asset(
-                                                        'Assets/emptyFile2.png')),
-                                            SizedBox(
-                                              height: 7,
-                                            ),
-                                            Text(
-                                              'Empty List!',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                  fontSize: 20),
-                                            ),
-                                            SizedBox(
-                                              height: 7,
-                                            ),
-                                            Text(
-                                              Constants.emptyFile,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Colors.black,
-                                                  fontSize: 15),
-                                            ),
-                                          ],
-                                        ))
-                                      : Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 11.0),
-                                          child: getFileListView(),
-                                        ),
-                            ),
-                            !isProgressing
-                                ? Container(child: null)
-                                : Positioned(
-                                    child: Container(
-                                      child: LinearProgressIndicator(),
-                                      height: 5,
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                    bottom: 0,
+                          ),
+                          !isProgressing
+                              ? Container(child: null)
+                              : Positioned(
+                                  child: Container(
+                                    child: LinearProgressIndicator(),
+                                    height: 5,
+                                    width: MediaQuery.of(context).size.width,
                                   ),
-                          ]),
-                        ),
-                      ],
-                    ),
-            ),
+                                  bottom: 0,
+                                ),
+                        ]),
+                      ),
+                    ],
+                  ),
             bottomNavigationBar: AnimatedBottomBar(
               barItems: widget.barItems,
               animationDuration: const Duration(milliseconds: 450),
@@ -793,106 +796,10 @@ class HomeState extends State<Home> {
   void _showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(
       content: Text(message),
-      duration: Duration(milliseconds: 700),
+      duration: Duration(milliseconds: 1200),
     );
     //ScaffoldMessenger.of(context).showSnackBar(snackBar);
     _scaffoldKey.currentState.showSnackBar(snackBar);
-  }
-
-  Future<void> getFile(BuildContext context) async {
-    setState(() {
-      isProgressing = true;
-    });
-    List<File> pickedFiles = [];
-    var status = await Permission.storage.status;
-    if (status.isGranted) {
-      FilePickerResult result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: [
-            'pdf',
-            'docx',
-            'doc',
-            'ppt',
-            'pptx',
-            'xlsx',
-            'xls',
-            'txt',
-            'jpg',
-          ],
-          allowMultiple: true);
-
-      if (result != null) {
-        result.files.forEach((element) {
-          print(element.path);
-        });
-        result.files.forEach((file) {
-          pickedFiles.add(File(file.path));
-        });
-      } else {
-        setState(() {
-          isProgressing = false;
-        });
-      }
-    } else {
-      var status = await Permission.storage.request();
-      if (status.isDenied)
-        _showSnackBar(context, 'Storage access Required');
-      else
-        getFile(context);
-    }
-
-    List<FileD> files = [];
-    int i = 0;
-    if (pickedFiles != null) {
-      await Future.forEach(pickedFiles, (pickedFile) async {
-        String newPath =
-            Constants.docDirectory + '/' + basename(pickedFile.path);
-        print(newPath);
-        pickedFile = await pickedFile.copy(newPath);
-
-        FileD file = FileD();
-        file.name = basename(pickedFile.path);
-        file.path = pickedFile.path;
-        file.date = pickedFile.lastModifiedSync().day.toString() +
-            "/" +
-            pickedFile.lastModifiedSync().month.toString() +
-            "/" +
-            pickedFile.lastModifiedSync().year.toString();
-        file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
-        file.type = pickedFile.path.split('.').last.toLowerCase();
-        file.fav = 0;
-        print(file.date);
-        files.insert(i++, file);
-        print(i);
-      });
-
-      var appDir = (await getTemporaryDirectory()).path;
-      Directory(appDir).delete(recursive: true);
-      files.forEach((element) {
-        print(element.name);
-      });
-
-      int result = 0;
-      try {
-        result = await databaseHelper.insertFilesD(files);
-      } catch (e) {
-        if (e.toString().contains('UNIQUE')) {
-          _showSnackBar(context, 'File with same name already exists');
-        } else
-          print('Catched Error -$e');
-        setState(() {
-          isProgressing = false;
-        });
-      }
-
-      if (result != 0) {
-        updateListView();
-        selectedBarIndex = 0;
-      } else {
-        // Failure
-      }
-    }
-    isProgressing = false;
   }
 
   void updateListView() {
@@ -1192,44 +1099,159 @@ class HomeState extends State<Home> {
     );
   }
 
-  Future<void> getSharedFile(String path) async {
-    File pickedFile = File(path);
+  Future<void> getFile(BuildContext context) async {
+    setState(() {
+      isProgressing = true;
+    });
+    List<File> pickedFiles = [];
+    var status = await Permission.storage.status;
+    if (status.isGranted) {
+      FilePickerResult result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: [
+            'pdf',
+            'docx',
+            'doc',
+            'ppt',
+            'pptx',
+            'xlsx',
+            'xls',
+            'txt',
+            'jpg',
+          ],
+          allowMultiple: true);
 
-    if (pickedFile != null) {
-      String newPath = Constants.docDirectory + "/" + basename(pickedFile.path);
+      if (result != null) {
+        result.files.forEach((element) {
+          print(element.path);
+        });
+        result.files.forEach((file) {
+          pickedFiles.add(File(file.path));
+        });
+      } else {
+        setState(() {
+          isProgressing = false;
+        });
+      }
+    } else {
+      var status = await Permission.storage.request();
+      if (status.isDenied)
+        _showSnackBar(context, 'Storage access Required');
+      else
+        getFile(context);
+    }
 
-      pickedFile = await pickedFile.copy(newPath);
+    List<FileD> files = [];
+    int i = 0;
+    if (pickedFiles != null) {
+      await Future.forEach(pickedFiles, (pickedFile) async {
+        String newPath =
+            Constants.docDirectory + '/' + basename(pickedFile.path);
+        print(newPath);
+        pickedFile = await pickedFile.copy(newPath);
+
+        FileD file = FileD();
+        file.name = basename(pickedFile.path);
+        file.path = pickedFile.path;
+        file.date = pickedFile.lastModifiedSync().day.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().month.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().year.toString();
+        file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
+        file.type = pickedFile.path.split('.').last.toLowerCase();
+        file.fav = 0;
+        print(file.date);
+        files.insert(i++, file);
+        print(i);
+      });
+
       var appDir = (await getTemporaryDirectory()).path;
-      print(appDir);
       Directory(appDir).delete(recursive: true);
-
-      FileD file = FileD();
-      file.name = basename(pickedFile.path);
-      file.path = pickedFile.path;
-      file.date = pickedFile.lastModifiedSync().day.toString() +
-          "/" +
-          pickedFile.lastModifiedSync().month.toString() +
-          "/" +
-          pickedFile.lastModifiedSync().year.toString();
-      file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
-      file.type = pickedFile.path.split('.').last.toLowerCase();
-      file.fav = 0;
+      files.forEach((element) {
+        print(element.name);
+      });
 
       int result = 0;
       try {
-        result = await databaseHelper.insertFileD(file);
+        result = await databaseHelper.insertFilesD(files);
       } catch (e) {
         if (e.toString().contains('UNIQUE')) {
-          print('File with same name already exists');
+          _showSnackBar(context, 'File with same name already exists');
         } else
-          print(e);
+          print('Catched Error -$e');
+        setState(() {
+          isProgressing = false;
+        });
       }
 
       if (result != 0) {
         updateListView();
         selectedBarIndex = 0;
-        print(pickedFile.path);
-      } else {}
+      } else {
+        // Failure
+      }
     }
+    isProgressing = false;
+  }
+
+  Future<void> getSharedFile(List<String> paths) async {
+    if (paths == null) return;
+    setState(() {
+      isProgressing = true;
+    });
+    List<File> pickedFiles = paths.map((path) => File(path)).toList();
+
+    List<FileD> files = [];
+    int i = 0;
+    if (pickedFiles != null) {
+      await Future.forEach(pickedFiles, (pickedFile) async {
+        String newPath =
+            Constants.docDirectory + '/' + basename(pickedFile.path);
+        print(newPath);
+        pickedFile = await pickedFile.copy(newPath);
+
+        FileD file = FileD();
+        file.name = basename(pickedFile.path);
+        file.path = pickedFile.path;
+        file.date = pickedFile.lastModifiedSync().day.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().month.toString() +
+            "/" +
+            pickedFile.lastModifiedSync().year.toString();
+        file.size = FileUtils.formatBytes(pickedFile.lengthSync(), 1);
+        file.type = pickedFile.path.split('.').last.toLowerCase();
+        file.fav = 0;
+        print(file.date);
+        files.insert(i++, file);
+        print(i);
+      });
+
+      var appDir = (await getTemporaryDirectory()).path;
+      Directory(appDir).delete(recursive: true);
+      files.forEach((element) {
+        print(element.name);
+      });
+
+      int result = 0;
+      try {
+        result = await databaseHelper.insertFilesD(files);
+      } catch (e) {
+        if (e.toString().contains('UNIQUE')) {
+        } else
+          print('Catched Error -$e');
+        setState(() {
+          isProgressing = false;
+        });
+      }
+
+      if (result != 0) {
+        updateListView();
+        selectedBarIndex = 0;
+      } else {
+        // Failure
+      }
+    }
+    isProgressing = false;
   }
 }

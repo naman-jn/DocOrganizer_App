@@ -16,6 +16,7 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
   final FirebaseMessaging _fcm = FirebaseMessaging();
 
   TextEditingController userQuestion = TextEditingController();
+  TextEditingController userEmail = TextEditingController();
   var _formKey = GlobalKey<FormState>();
 
   bool isAsking = false;
@@ -64,63 +65,68 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
                         ),
                       ),
                       SizedBox(height: 15),
-                      StreamBuilder(
-                          stream: FirebaseFirestore.instance
-                              .collection("FAQ")
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return Text(
-                                'No Data...',
-                              );
-                            } else {
-                              //<DocumentSnapshot> items = snapshot.data.documents;
-                              return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) {
-                                    DocumentSnapshot ds =
-                                        snapshot.data.documents[index];
-                                    return Card(
-                                      child: ExpansionTile(
-                                        title: Row(
+                      Container(
+                        height: isAsking ? 252 : 400,
+                        child: StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection("FAQ")
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return Text(
+                                  'No Data...',
+                                );
+                              } else {
+                                //<DocumentSnapshot> items = snapshot.data.documents;
+                                return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: snapshot.data.documents.length,
+                                    itemBuilder: (context, index) {
+                                      DocumentSnapshot ds =
+                                          snapshot.data.documents[index];
+                                      return Card(
+                                        child: ExpansionTile(
+                                          title: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.question_answer_outlined,
+                                                size: 21,
+                                                color: Colors.black87,
+                                              ),
+                                              SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                  child: Text(ds["question"],
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: 14,
+                                                      ))),
+                                            ],
+                                          ),
                                           children: [
-                                            Icon(
-                                              Icons.question_answer_outlined,
-                                              size: 21,
-                                              color: Colors.black87,
-                                            ),
-                                            SizedBox(
-                                              width: 15,
-                                            ),
-                                            Expanded(
-                                                child: Text(ds["question"],
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 14,
-                                                    ))),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5.0,
+                                                      horizontal: 15),
+                                              child: Text(
+                                                ds["answer"],
+                                                style: TextStyle(
+                                                  color: Colors.black54,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            )
                                           ],
                                         ),
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 5.0, horizontal: 15),
-                                            child: Text(
-                                              ds["answer"],
-                                              style: TextStyle(
-                                                color: Colors.black54,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  });
-                            }
-                          }),
+                                      );
+                                    });
+                              }
+                            }),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Column(
@@ -160,47 +166,23 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
                                 ),
                               ),
                             if (isAsking)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 9),
-                                child: TextFormField(
-                                  controller: userQuestion,
-                                  keyboardType: TextInputType.multiline,
-                                  // ignore: missing_return
-                                  validator: (String value) {
-                                    if (value.trim().isEmpty) {
-                                      return "Question field can't be empty";
-                                    }
-                                  },
-                                  maxLines: 3,
-                                  style: TextStyle(color: Colors.black),
-                                  decoration: InputDecoration(
-                                    hintText: "Your question",
-                                    errorStyle: TextStyle(
-                                        color: Colors.deepOrangeAccent),
-                                    errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.deepOrangeAccent)),
-                                    focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.deepOrangeAccent)),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(9),
-                                      borderSide: BorderSide(
-                                          color: Colors.grey[400], width: 1.5),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(9),
-                                      borderSide: BorderSide(
-                                          color: Colors.grey[400], width: 1.5),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(9),
-                                      borderSide:
-                                          BorderSide(color: Colors.blue[300]),
-                                    ),
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 9),
+                                    child: CustomTextField(
+                                        controller: userEmail,
+                                        hintText: "Your email"),
                                   ),
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 9),
+                                    child: CustomTextField(
+                                        controller: userQuestion,
+                                        hintText: "Your question"),
+                                  ),
+                                ],
                               ),
                           ],
                         ),
@@ -244,6 +226,7 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
     String fcmToken = await _fcm.getToken();
 
     Map<String, dynamic> data = {
+      "userEmail": userEmail.text.trim(),
       "userQuestion": userQuestion.text.trim(),
       'token': fcmToken,
       'createdAt': FieldValue.serverTimestamp(),
@@ -251,13 +234,15 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
     questionReference
         .add(data)
         .whenComplete(() => () {
-              userQuestion.text = '';
+              userQuestion.clear();
+              userEmail.clear();
             })
         .catchError((e) => print(e));
   }
 
   void _showAlertDialog(BuildContext context) {
     Dialog dialog = Dialog(
+      backgroundColor: Colors.transparent,
       child: Container(
         color: Colors.transparent,
         padding: EdgeInsets.all(15),
@@ -273,10 +258,10 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
               ),
             ),
             SizedBox(
-              height: 5,
+              height: 9,
             ),
             Text(
-              'If accepted answer will be updated in FAQs',
+              'Your query will be resolved via email at the earliest',
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.white,
@@ -295,5 +280,51 @@ class _FAQState extends State<FAQ> with TickerProviderStateMixin {
     Future.delayed(Duration(milliseconds: 4300), () {
       Navigator.pop(context);
     });
+  }
+}
+
+class CustomTextField extends StatelessWidget {
+  const CustomTextField({
+    Key key,
+    @required this.controller,
+    @required this.hintText,
+  }) : super(key: key);
+
+  final TextEditingController controller;
+  final String hintText;
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.multiline,
+      // ignore: missing_return
+      validator: (String value) {
+        if (value.trim().isEmpty) {
+          return "Invalid Entry";
+        }
+      },
+      maxLines: hintText == "Your email" ? 1 : 3,
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        hintText: hintText,
+        errorStyle: TextStyle(color: Colors.deepOrangeAccent),
+        errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.deepOrangeAccent)),
+        focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.deepOrangeAccent)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: BorderSide(color: Colors.grey[400], width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: BorderSide(color: Colors.grey[400], width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: BorderSide(color: Colors.blue[300]),
+        ),
+      ),
+    );
   }
 }
